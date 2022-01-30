@@ -1,4 +1,4 @@
-package com.example.cve.cvepojo;
+package com.dynamicallyblunttech.cve.pojo;
 
 public class DescriptionData {
 

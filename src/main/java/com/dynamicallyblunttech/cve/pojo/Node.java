@@ -1,4 +1,4 @@
-package com.example.cve.cvepojo;
+package com.dynamicallyblunttech.cve.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
