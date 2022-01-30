@@ -1,19 +1,13 @@
 package com.dynamicallyblunttech.cve.pojo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import java.util.List;
 
+@Data
 public class Problemtype {
 
     @JsonProperty
     private List<ProblemtypeData> problemtype_data;
-
-    public List<ProblemtypeData> getProblemtype_data() {
-        return problemtype_data;
-    }
-
-    public void setProblemtype_data(List<ProblemtypeData> problemtype_data) {
-        this.problemtype_data = problemtype_data;
-    }
 }

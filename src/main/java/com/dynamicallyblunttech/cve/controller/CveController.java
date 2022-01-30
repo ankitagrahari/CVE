@@ -28,6 +28,9 @@ public class CveController {
     @Value("${nvd.base.url}")
     private String nvdBaseURL;
 
+    @Value("${json.local.file.path}")
+    private String jsonLocalFilePath;
+
 //    private final static String HTTP_PROXY = "web-proxy.in.softwaregrp.net";
 //    private final static String HTTPS_PROXY = "web-proxy.in.softwaregrp.net";
 //    private final static String HTTP_PORT = "8080";
@@ -58,7 +61,8 @@ public class CveController {
             connection.setRequestMethod("GET");
 
             int responseCode = connection.getResponseCode();
-            //System.out.println("ResponseCode:" + responseCode + "----ContentType:" + connection.getContentType() + "---Encoding:" + connection.getContent());
+            //System.out.println("ResponseCode:" + responseCode + "----ContentType:"
+            // + connection.getContentType() + "---Encoding:" + connection.getContent());
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
@@ -76,11 +80,10 @@ public class CveController {
 
                     bos.flush();
                     bos.close();
-
                     fos.close();
 
                     File outputJson = new File(zentry.getName());
-                    //System.out.println("File Downloaded to:" + outputJson.getAbsolutePath());
+                    System.out.println("File Downloaded to:" + outputJson.getAbsolutePath());
 
                     System.out.println("Parsing Json to get the CVE data");
                     cveJson = convertJsonToObject(vendor, product, outputJson);
@@ -116,19 +119,19 @@ public class CveController {
     }
 
     @RequestMapping(value="/parse/{vendor}/{product}")
-    public static @ResponseBody Map<String, List<OutputCVEJson>> convertJsonToObjectWithJsonFile(
+    public @ResponseBody Map<String, List<OutputCVEJson>> convertJsonToObjectWithJsonFile(
             @PathVariable String vendor,
             @PathVariable List<String> product){
-//        String jsonFile = "C:\\Users\\agrahari.CORPDOM\\Documents\\GitHub\\cve\\nvdcve-1.0-2019-2.json";
-        String jsonFile = "/opt/tomcat/apache-tomcat-9.0.24/bin/nvdcve-1.0-2019.json";
+
         Gson gson = new Gson();
         Gson prettyGson = null;
         Map<String, List<OutputCVEJson>> mapping = null;
 
-        try (Reader reader = new FileReader(jsonFile)) {
+        try (Reader reader = new FileReader(jsonLocalFilePath)) {
 
             // Convert JSON File to Java Object
             CVEMetaData obj= gson.fromJson(reader, CVEMetaData.class);
+            System.out.println(obj.toString());
 
             mapping = generateVendorVersionCVEMapping(obj, vendor, product);
 
@@ -160,7 +163,7 @@ public class CveController {
             prettyGson = new GsonBuilder().setPrettyPrinting().create();
             String prettyJson = prettyGson.toJson(mapping);
 
-//            System.out.println(prettyJson);
+            System.out.println(prettyJson);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -171,7 +174,7 @@ public class CveController {
     public static Map<String, List<OutputCVEJson>> generateVendorVersionCVEMapping(CVEMetaData data, String vendor, List<String> product){
         Map<String, List<OutputCVEJson>> mapping = new HashMap<>();
 
-        for (CVEItem item : data.getCVEItems()){
+        for (CVEItem item : data.getCVE_Items()){
 
             for(VendorData vendor_data:item.getCve().getAffects().getVendor().getVendor_data()){
 
