@@ -2,6 +2,7 @@ package com.dynamicallyblunttech.cve.controller;
 
 
 import com.dynamicallyblunttech.cve.OutputCVEJson;
+import com.dynamicallyblunttech.cve.pojo.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Value;
