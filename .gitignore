@@ -21,9 +21,5 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-.idea/compiler.xml
-.idea/jarRepositories.xml
-.idea/libraries/Maven__org_projectlombok_lombok_1_18_22.xml
-.idea/vcs.xml
+.idea/*
 target/classes/application.properties
-.idea/jarRepositories.xml
