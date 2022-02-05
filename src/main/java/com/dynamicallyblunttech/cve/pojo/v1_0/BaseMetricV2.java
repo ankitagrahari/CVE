@@ -1,9 +1,8 @@
-package com.dynamicallyblunttech.cve.pojo;
+package com.dynamicallyblunttech.cve.pojo.v1_0;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.lang.*;
-import java.lang.Boolean;
 
 @Data
 public class BaseMetricV2 {

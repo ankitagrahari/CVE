@@ -1,4 +1,4 @@
-package com.dynamicallyblunttech.cve.pojo;
+package com.dynamicallyblunttech.cve.pojo.v1_0;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -6,8 +6,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Description2 {
+public class Version {
 
     @JsonProperty
-    private List<DescriptionData> description_data ;
+    private List<VersionData> version_data;
 }

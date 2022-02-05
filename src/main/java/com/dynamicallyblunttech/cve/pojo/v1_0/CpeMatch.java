@@ -1,17 +1,16 @@
-package com.dynamicallyblunttech.cve.pojo;
+package com.dynamicallyblunttech.cve.pojo.v1_0;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Node {
+public class CpeMatch {
 
     @JsonProperty
-    private String operator;
+    private Boolean vulnerable ;
     @JsonProperty
-    private List<CpeMatch> cpe_match ;
+    private String cpe23Uri ;
+
 }
