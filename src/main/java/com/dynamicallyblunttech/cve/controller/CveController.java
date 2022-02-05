@@ -122,35 +122,17 @@ public class CveController {
         return cveJson;
     }
 
-    @RequestMapping(value="/parse/{vendor}/{product}")
+    @RequestMapping(value="/parse/{year}/{vendor}/{product}")
     public @ResponseBody Map<String, List<OutputCVEJson>> convertJsonToObjectWithJsonFile(
+            @PathVariable Integer year,
             @PathVariable String vendor,
             @PathVariable List<String> product){
 
-        Gson gson = new Gson();
-        Gson prettyGson = null;
-        Map<String, List<OutputCVEJson>> mapping = null;
-
-        try (Reader reader = new FileReader(jsonLocalFilePath)) {
-
-            // Convert JSON File to Java Object
-            CVEMetaData obj= gson.fromJson(reader, CVEMetaData.class);
-            System.out.println(obj.toString());
-
-            mapping = generateVendorVersionCVEMapping(obj, vendor, product);
-
-            prettyGson = new GsonBuilder().setPrettyPrinting().create();
-            String prettyJson = prettyGson.toJson(mapping);
-
-            System.out.println(prettyJson);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return mapping;
+        return convertJsonToObject(
+                vendor, product, new File(jsonLocalFilePath), year);
     }
 
-    public static Map<String, List<OutputCVEJson>> convertJsonToObject(String vendor,
+    public Map<String, List<OutputCVEJson>> convertJsonToObject(String vendor,
                                                                        List<String> product,
                                                                        File outputJson,
                                                                        Integer year){
@@ -175,7 +157,7 @@ public class CveController {
 
             } else {
                 CVE obj = gson.fromJson(reader, CVE.class);
-
+                System.out.println(obj.toString());
             }
 
         } catch (IOException e) {
