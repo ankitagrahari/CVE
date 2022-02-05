@@ -2,7 +2,8 @@ package com.dynamicallyblunttech.cve.controller;
 
 
 import com.dynamicallyblunttech.cve.OutputCVEJson;
-import com.dynamicallyblunttech.cve.pojo.*;
+import com.dynamicallyblunttech.cve.pojo.v1_0.*;
+import com.dynamicallyblunttech.cve.pojo.v1_1.CVE;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,11 +23,11 @@ import java.util.zip.ZipInputStream;
 @RequestMapping("/cve")
 public class CveController {
 
-    @Value("${nvd.version}")
-    private String nvdVersion;
+    @Value("${nvd.base.legacy.url}")
+    private String nvdBaseLegacyURL;
 
-    @Value("${nvd.base.url}")
-    private String nvdBaseURL;
+    @Value("${nvd.base.new.url}")
+    private String nvdBaseNewURL;
 
     @Value("${json.local.file.path}")
     private String jsonLocalFilePath;
@@ -36,12 +37,15 @@ public class CveController {
 //    private final static String HTTP_PORT = "8080";
 
     @RequestMapping(value="/{year}/{vendor}/{product}", method = RequestMethod.GET)
-    public @ResponseBody Map<String, List<OutputCVEJson>> getCVEData(@PathVariable final String year,
+    public @ResponseBody Map<String, List<OutputCVEJson>> getCVEData(@PathVariable final Integer year,
                                                                      @PathVariable String vendor,
                                                                      @PathVariable List<String> product) {
         System.out.println("Start Getting CVE from " + year);
         Map<String, List<OutputCVEJson>> cveJson = null;
-        String baseURL = nvdBaseURL + nvdVersion + "/nvdcve-"+ nvdVersion +"-" + year + ".json.zip";
+        String baseURL = year>2019
+                ? nvdBaseLegacyURL + "1.0/nvdcve-1.0-" + year + ".json.zip"
+                : nvdBaseNewURL + "1.1/nvdcve-1.1-" + year + ".json.zip";
+
         URL cveReq = null;
         ZipInputStream zis = null;
         FileOutputStream fos = null;
@@ -86,7 +90,7 @@ public class CveController {
                     System.out.println("File Downloaded to:" + outputJson.getAbsolutePath());
 
                     System.out.println("Parsing Json to get the CVE data");
-                    cveJson = convertJsonToObject(vendor, product, outputJson);
+                    cveJson = convertJsonToObject(vendor, product, outputJson, year);
 
                     //Remove the large JSON file, once the processing is done.
                     boolean isDeleted = deleteCVEJsonFile(outputJson);
@@ -146,7 +150,10 @@ public class CveController {
         return mapping;
     }
 
-    public static Map<String, List<OutputCVEJson>> convertJsonToObject(String vendor, List<String> product, File outputJson){
+    public static Map<String, List<OutputCVEJson>> convertJsonToObject(String vendor,
+                                                                       List<String> product,
+                                                                       File outputJson,
+                                                                       Integer year){
 
         Gson gson = new Gson();
         Gson prettyGson = null;
@@ -155,15 +162,21 @@ public class CveController {
         try (Reader reader = new FileReader(outputJson)) {
 
             // Convert JSON File to Java Object
-            CVEMetaData obj= gson.fromJson(reader, CVEMetaData.class);
-            System.out.println(obj.toString());
+            if(year<=2019) {
+                CVEMetaData obj = gson.fromJson(reader, CVEMetaData.class);
+                System.out.println(obj.toString());
 
-            mapping = generateVendorVersionCVEMapping(obj, vendor, product);
+                mapping = generateVendorVersionCVEMapping(obj, vendor, product);
 
-            prettyGson = new GsonBuilder().setPrettyPrinting().create();
-            String prettyJson = prettyGson.toJson(mapping);
+                prettyGson = new GsonBuilder().setPrettyPrinting().create();
+                String prettyJson = prettyGson.toJson(mapping);
 
-            System.out.println(prettyJson);
+                System.out.println(prettyJson);
+
+            } else {
+                CVE obj = gson.fromJson(reader, CVE.class);
+
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -186,7 +199,7 @@ public class CveController {
 
                                 OutputCVEJson cveJson = new OutputCVEJson();
                                 cveJson.setCveId(item.getCve().getCVE_data_meta().getID());
-                                cveJson.setDescription(item.getCve().getDescription().getDescription_data().get(0).getValue());
+                                cveJson.setDescription(item.getCve().getDescription().getDescriptionData().get(0).getValue());
                                 cveJson.setBaseMetricV2score(String.valueOf(item.getImpact().getBaseMetricV2().getImpactScore()));
                                 cveJson.setBaseMetricV3score(String.valueOf(item.getImpact().getBaseMetricV3().getImpactScore()));
 
