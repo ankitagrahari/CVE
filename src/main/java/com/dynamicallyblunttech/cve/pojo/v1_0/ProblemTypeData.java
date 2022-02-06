@@ -1,14 +1,18 @@
 package com.dynamicallyblunttech.cve.pojo.v1_0;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-public class ProblemtypeData {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProblemTypeData {
 
-    @JsonProperty
+    @JsonProperty(value = "description")
     private List<Description> description;
 
 }

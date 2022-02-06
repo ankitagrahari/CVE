@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -53,19 +54,18 @@ public class CveController {
         byte[] buffer = new byte[2048];
         try {
             cveReq = new URL(baseURL);
-            String readLine = null;
 
 //            System.setProperty("http.proxyHost", HTTP_PROXY);
 //            System.setProperty("http.proxyPort", HTTP_PORT);
 //            System.setProperty("https.proxyHost", HTTPS_PROXY);
 //            System.setProperty("https.proxyPort", HTTP_PORT);
-            //System.setProperty("zip.altEncoding", "Cp437");
+//            System.setProperty("zip.altEncoding", "Cp437");
 
             HttpsURLConnection connection = (HttpsURLConnection) cveReq.openConnection();
             connection.setRequestMethod("GET");
 
             int responseCode = connection.getResponseCode();
-            //System.out.println("ResponseCode:" + responseCode + "----ContentType:"
+            // System.out.println("ResponseCode:" + responseCode + "----ContentType:"
             // + connection.getContentType() + "---Encoding:" + connection.getContent());
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -126,19 +126,21 @@ public class CveController {
     public @ResponseBody Map<String, List<OutputCVEJson>> convertJsonToObjectWithJsonFile(
             @PathVariable Integer year,
             @PathVariable String vendor,
-            @PathVariable List<String> product){
+            @PathVariable List<String> product) throws IOException {
 
+        File localFile = new File(jsonLocalFilePath);
+        if(!localFile.exists())
+            return null;
+
+//        System.out.println(new String(Files.readAllBytes(localFile.toPath())));
         return convertJsonToObject(
-                vendor, product, new File(jsonLocalFilePath), year);
+                vendor, product, localFile, year);
     }
 
-    public Map<String, List<OutputCVEJson>> convertJsonToObject(String vendor,
-                                                                       List<String> product,
-                                                                       File outputJson,
-                                                                       Integer year){
+    public Map<String, List<OutputCVEJson>> convertJsonToObject(
+            String vendor, List<String> product, File outputJson, Integer year){
 
         Gson gson = new Gson();
-        Gson prettyGson = null;
         Map<String, List<OutputCVEJson>> mapping = null;
 
         try (Reader reader = new FileReader(outputJson)) {
@@ -150,12 +152,17 @@ public class CveController {
 
                 mapping = generateVendorVersionCVEMapping(obj, vendor, product);
 
-                prettyGson = new GsonBuilder().setPrettyPrinting().create();
+                Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
                 String prettyJson = prettyGson.toJson(mapping);
 
                 System.out.println(prettyJson);
 
             } else {
+                CVE cve = new CVE();
+
+                String a = gson.toJson(cve);
+                System.out.println(a);
+                System.out.println("=====");
                 CVE obj = gson.fromJson(reader, CVE.class);
                 System.out.println(obj.toString());
             }

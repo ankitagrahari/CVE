@@ -10,8 +10,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class References {
+public class ProblemType {
 
-    @JsonProperty(value = "reference_data")
-    private List<ReferenceData> referenceData ;
+    @JsonProperty(value = "problemtype_data")
+    private List<ProblemTypeData> problemTypeData;
 }
