@@ -43,7 +43,7 @@ public class CveController {
                                                                      @PathVariable List<String> product) {
         System.out.println("Start Getting CVE from " + year);
         Map<String, List<OutputCVEJson>> cveJson = null;
-        String baseURL = year>2019
+        String baseURL = year<=2019
                 ? nvdBaseLegacyURL + "1.0/nvdcve-1.0-" + year + ".json.zip"
                 : nvdBaseNewURL + "1.1/nvdcve-1.1-" + year + ".json.zip";
 
@@ -65,8 +65,8 @@ public class CveController {
             connection.setRequestMethod("GET");
 
             int responseCode = connection.getResponseCode();
-            // System.out.println("ResponseCode:" + responseCode + "----ContentType:"
-            // + connection.getContentType() + "---Encoding:" + connection.getContent());
+             System.out.println("ResponseCode:" + responseCode + "----ContentType:"
+             + connection.getContentType() + "---Encoding:" + connection.getContent());
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
@@ -158,7 +158,7 @@ public class CveController {
                 System.out.println(prettyJson);
 
             } else {
-                CVE cve = new CVE();
+                CVE cve = CVE.builder().format("MITRE").noOfCVEs("916").type("CVE").build();
 
                 String a = gson.toJson(cve);
                 System.out.println(a);
